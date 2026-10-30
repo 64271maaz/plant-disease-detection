@@ -1,6 +1,8 @@
 # Plant Disease Detection using CNN and Transfer Learning
 
-Leaf ki photo upload karo, model disease predict karega.
+Upload a leaf photo, and the model will predict the disease.
+## 🌐 Live Demo
+https://plant-disease-detection-ogprsguqebssdnrmd9fma6.streamlit.app
 
 ## Project overview
 - Model: MobileNetV2 (ImageNet pretrained), transfer learning
