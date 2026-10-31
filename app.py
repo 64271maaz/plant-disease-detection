@@ -43,7 +43,7 @@ if file is not None:
     st.image(img, caption="Uploaded leaf")
 
     if not looks_like_leaf(img):
-       st.warning("This image does not look like a leaf. Please upload a clear leaf photo.")
+        st.warning("This image does not look like a leaf. Please upload a clear leaf photo.")
         st.stop()
 
     arr = np.expand_dims(np.array(img.resize(IMG_SIZE), dtype="float32"), axis=0)
