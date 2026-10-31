@@ -1,3 +1,4 @@
+%%writefile app.py
 import json
 import numpy as np
 import streamlit as st
@@ -6,9 +7,12 @@ from PIL import Image
 
 st.set_page_config(page_title="Plant Disease Detector", page_icon="🌿")
 
+CONF_THRESHOLD = 0.70
+IMG_SIZE = (224, 224)
+
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("plant_disease_model.keras")
+    return tf.keras.models.load_model("plant_disease_model.keras", compile=False)
 
 @st.cache_data
 def load_class_names():
@@ -19,11 +23,17 @@ model = load_model()
 class_names = load_class_names()
 
 def pretty_name(raw):
-    # "Tomato___Late_blight" -> "Tomato: Late blight"
     crop, _, disease = raw.partition("___")
     if not disease:
         crop, _, disease = raw.partition("__")
     return f"{crop.replace('_', ' ')}: {disease.replace('_', ' ')}"
+
+def looks_like_leaf(img):
+    # Simple check: kafi hissa green hona chahiye
+    arr = np.array(img.resize(IMG_SIZE)).astype(int)
+    r, g, b = arr[..., 0], arr[..., 1], arr[..., 2]
+    green = (g > r) & (g > b) & (g > 60)
+    return green.mean() > 0.15
 
 st.title("🌿 Plant Disease Detection")
 st.write("Upload a leaf photo, and the model will predict the disease.")
@@ -34,13 +44,23 @@ if file is not None:
     img = Image.open(file).convert("RGB")
     st.image(img, caption="Uploaded leaf")
 
-    arr = np.array(img.resize((224, 224)), dtype="float32")
-    arr = np.expand_dims(arr, axis=0)
+    if not looks_like_leaf(img):
+        st.warning("Ye image leaf jaisi nahi lag rahi. Clear leaf ki photo upload karein.")
+        st.stop()
 
+    arr = np.expand_dims(np.array(img.resize(IMG_SIZE), dtype="float32"), axis=0)
     preds = model.predict(arr, verbose=0)[0]
     top3 = np.argsort(preds)[::-1][:3]
+    best = top3[0]
+    conf = preds[best]
 
-    st.success(f"**Prediction:** {pretty_name(class_names[top3[0]])} ({preds[top3[0]] * 100:.2f}%)")
+    if conf < CONF_THRESHOLD:
+        st.warning(
+            f"Model ko yakeen nahi hai (top prediction: {pretty_name(class_names[best])}, "
+            f"{conf * 100:.2f}%). Clear aur close leaf ki photo try karein."
+        )
+    else:
+        st.success(f"**Prediction:** {pretty_name(class_names[best])} ({conf * 100:.2f}%)")
 
     st.subheader("Top 3 predictions")
     for i in top3:
