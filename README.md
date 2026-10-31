@@ -15,8 +15,9 @@ https://plant-disease-detection-ogprsguqebssdnrmd9fma6.streamlit.app
 - Weighted F1: **0.88**
 
 ## Limitations
-- PlantVillage images lab-controlled hain (plain background). Real field photos par accuracy kam ho sakti hai.
-- Tomato early blight, bacterial spot aur septoria aapas mein confuse hote hain.
+
+- PlantVillage images are captured in a lab setting with plain backgrounds, so accuracy may be lower on real field photos.
+- Tomato early blight, bacterial spot, and septoria are often confused with each other because their lesions look visually similar.
 
 ## Files
 - `app.py`: Streamlit app
