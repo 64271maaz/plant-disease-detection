@@ -62,5 +62,5 @@ if file is not None:
 
     st.subheader("Top 3 predictions")
     for i in top3:
-        st.write(f"{pretty_name(class_names[i])}: {preds[i] * 100:.2f}%")
+        st.write(f"{pretty_name(class_names[i])} ({preds[i] * 100:.2f}%)")
         st.progress(float(preds[i]))
