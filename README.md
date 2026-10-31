@@ -7,6 +7,7 @@ https://plant-disease-detection-ogprsguqebssdnrmd9fma6.streamlit.app
 ## Project overview
 - Model: MobileNetV2 (ImageNet pretrained), transfer learning
 - Dataset: PlantVillage (15 classes, ~20,600 images)
+- Dataset Link : https://www.kaggle.com/datasets/emmarex/plantdisease
 - Framework: TensorFlow/Keras, Streamlit (app)
 
 ## Results
