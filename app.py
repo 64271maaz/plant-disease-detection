@@ -1,4 +1,3 @@
-%%writefile app.py
 import json
 import numpy as np
 import streamlit as st
@@ -29,7 +28,6 @@ def pretty_name(raw):
     return f"{crop.replace('_', ' ')}: {disease.replace('_', ' ')}"
 
 def looks_like_leaf(img):
-    # Simple check: kafi hissa green hona chahiye
     arr = np.array(img.resize(IMG_SIZE)).astype(int)
     r, g, b = arr[..., 0], arr[..., 1], arr[..., 2]
     green = (g > r) & (g > b) & (g > 60)
