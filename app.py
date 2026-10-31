@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import matplotlib
 import streamlit as st
 import tensorflow as tf
 from PIL import Image
@@ -61,6 +62,34 @@ def looks_like_leaf(img):
     return green.mean() > 0.15
 
 
+def make_gradcam(img_arr, class_idx):
+    base = model.get_layer("mobilenetv2_1.00_224")
+    feature_model = tf.keras.Model(base.input, base.output)
+
+    x = model.get_layer("rescaling")(img_arr)
+    conv_out = feature_model(x, training=False)
+
+    with tf.GradientTape() as tape:
+        tape.watch(conv_out)  # base model frozen hai, isliye conv_out ko manually watch karna zaroori hai
+        pooled = model.get_layer("global_average_pooling2d")(conv_out)
+        logits = model.get_layer("dense")(pooled)
+        score = logits[:, class_idx]
+
+    grads = tape.gradient(score, conv_out)
+    weights = tf.reduce_mean(grads, axis=(1, 2))
+    cam = tf.reduce_sum(conv_out * weights[:, None, None, :], axis=-1)[0]
+    cam = tf.nn.relu(cam)
+    cam = cam / (tf.reduce_max(cam) + 1e-8)
+    return cam.numpy()
+
+
+def overlay_heatmap(original, cam, alpha=0.4):
+    cam_img = Image.fromarray(np.uint8(255 * cam)).resize(original.size, Image.BILINEAR)
+    heat = matplotlib.colormaps["jet"](np.array(cam_img) / 255.0)[..., :3]
+    heat_img = Image.fromarray(np.uint8(heat * 255))
+    return Image.blend(original, heat_img, alpha)
+
+
 st.title("🌿 Plant Disease Detection")
 st.write("Upload a leaf photo, and the model will predict the disease.")
 
@@ -87,9 +116,17 @@ if file is not None:
         )
     else:
         st.success(f"**Prediction:** {pretty_name(class_names[best])} ({conf * 100:.2f}%)")
+
         st.subheader("Treatment suggestion")
         st.info(get_treatment(class_names[best]))
         st.caption("This is general guidance, not a replacement for advice from a local agriculture expert.")
+
+        st.subheader("Where the model is looking (Grad-CAM)")
+        cam = make_gradcam(arr, best)
+        st.image(
+            overlay_heatmap(img, cam),
+            caption="Red areas show where the model focused the most",
+        )
 
     st.subheader("Top 3 predictions")
     for i in top3:
