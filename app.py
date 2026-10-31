@@ -43,7 +43,7 @@ if file is not None:
     st.image(img, caption="Uploaded leaf")
 
     if not looks_like_leaf(img):
-        st.warning("Ye image leaf jaisi nahi lag rahi. Clear leaf ki photo upload karein.")
+       st.warning("This image does not look like a leaf. Please upload a clear leaf photo.")
         st.stop()
 
     arr = np.expand_dims(np.array(img.resize(IMG_SIZE), dtype="float32"), axis=0)
@@ -54,9 +54,9 @@ if file is not None:
 
     if conf < CONF_THRESHOLD:
         st.warning(
-            f"Model ko yakeen nahi hai (top prediction: {pretty_name(class_names[best])}, "
-            f"{conf * 100:.2f}%). Clear aur close leaf ki photo try karein."
-        )
+    f"The model is not confident (top prediction: {pretty_name(class_names[best])}, "
+    f"{conf * 100:.2f}%). Please try a clear, close-up leaf photo."
+)
     else:
         st.success(f"**Prediction:** {pretty_name(class_names[best])} ({conf * 100:.2f}%)")
 
