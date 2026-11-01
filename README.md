@@ -8,14 +8,14 @@ Upload a leaf photo, and the model predicts the plant disease, shows treatment s
 - Disease prediction for 15 classes (Potato, Tomato, Pepper bell)
 - Top 3 predictions with confidence scores
 - Confidence threshold (70%): low-confidence results show a warning instead of a guess
-- Non-leaf image check: images without leaf-like green colour are rejected
+- Simple leaf check: images without enough leaf-like green colour are rejected
 - Treatment suggestions for each disease (general guidance)
 - Grad-CAM heatmap showing where the model looked
 
 ## Project overview
 - **Model:** MobileNetV2 (ImageNet pretrained), transfer learning, custom classification head
 - **Dataset:** PlantVillage (15 classes, ~20,600 images)
-- **Dataset link**:https://www.kaggle.com/datasets/emmarex/plantdisease?select=PlantVillage
+-  **Dataset link**:https://www.kaggle.com/datasets/emmarex/plantdisease?select=PlantVillage
 - **Framework:** TensorFlow/Keras (training), Streamlit (web app)
 - **Training environment:** Google Colab (T4 GPU)
 
@@ -35,7 +35,8 @@ Upload a leaf photo, and the model predicts the plant disease, shows treatment s
 ## Limitations
 - PlantVillage images are captured in a lab setting with plain backgrounds, so accuracy may be lower on real field photos.
 - Tomato early blight, bacterial spot, and septoria are often confused with each other because their lesions look visually similar.
-- The model only knows the 15 trained classes. Objects outside these classes (for example, furniture or people) can still get a prediction. The current non-leaf check is a simple colour rule, not a real detector.
+- The model only knows the 15 trained classes. Objects outside these classes (for example, furniture, posters, or people) can still get a prediction.
+- The green-colour leaf check is a simple rule. It can accept non-leaf images with a lot of green (such as posters), and can reject real leaves on very dark or colourful backgrounds.
 - Stock or internet photos with white backgrounds can get low confidence or wrong predictions.
 - Treatment suggestions are general guidance and are not based on the dataset. Always consult a local agriculture expert before using any chemical.
 
@@ -43,7 +44,7 @@ Upload a leaf photo, and the model predicts the plant disease, shows treatment s
 - Add a "not a leaf" class to train a proper leaf detector
 - Train on real field photos (for example, PlantDoc dataset)
 - Compare MobileNetV2 with EfficientNetB0
-- Add a stronger rejection step for unknown inputs
+- Replace the colour rule with a stronger rejection step for unknown inputs
 
 ## Files
 - `app.py`: Streamlit app (prediction, threshold, treatment, Grad-CAM)
